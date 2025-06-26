@@ -13,13 +13,11 @@ import restapi.prac.service.PostService;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/post")
+@RequestMapping("/api/posts")
 public class PostController {
 
     @Autowired
     private PostService postService;
-
-
 
     @GetMapping
     public ResponseEntity<Page<Post>> listPost(@RequestParam(defaultValue = "0") int page,
