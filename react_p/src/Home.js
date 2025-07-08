@@ -1,29 +1,40 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import './css/list.css';
+import axios from "axios";
 
 
 
 
 function Home() {
 
-    const allPosts = Array.from({ length: 25 }, (_, index) => ({
-        id: index + 1,
-        title: `${index + 1}번째 게시글`,
-        content: `${index + 1}번째 게시글의 내용입니다.`,
-    }));
-
-    const postsPerPage = 10;
+    const [posts, setPosts] = useState([]);
+    const [totalPages, setTotalPages] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
+    const postsPerPage=10;
 
-    // 현재 페이지에 해당하는 게시글 리스트 계산
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = allPosts.slice(indexOfFirstPost, indexOfLastPost);
+    const getPostList = ()=>{
+        axios.get(`${process.env.REACT_APP_API_URL}/posts`,{
+            params:{
+                page:currentPage -1,
+                size:postsPerPage
+            }
+        }).then((res) => {
+            console.log(res.data.content);
+            setPosts(res.data.content);
+            setTotalPages(res.data.totalPages);
+        }).catch(err => {
+           console.error("게시글 가져오기 실패");
+        })
+    }
 
-    // 전체 페이지 번호 배열 계산
-    const totalPages = Math.ceil(allPosts.length / postsPerPage);
-    const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
+    useEffect(() => {
+        getPostList();
+    },[currentPage])
+
+
+    const pageNumbers = Array.from({length:totalPages}, (_,index)=>index+1)
+
 
     // 페이지 변경 핸들러
     const handlePageChange = (pageNumber) => {
@@ -34,7 +45,7 @@ function Home() {
         <div className="home-container">
             <h1 className="home-title">게시글 목록</h1>
             <div className="posts-list">
-                {currentPosts.map(post => (
+                {posts.map(post => (
                     <div key={post.id} className="post-card">
                         <h2 className="post-title">
                             <Link to={`/post/${post.id}`}>{post.title}</Link>

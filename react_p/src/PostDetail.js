@@ -1,13 +1,31 @@
 import {useParams ,Link} from "react-router-dom";
 import "./css/detail.css"
+import {useEffect, useState} from "react";
+import axios from "axios";
 
 let PostDetail = ()=>{
     const {id} = useParams();
-    const post = {
-        id:id,
-        title: `${id}번째 게시글`,
-        content: `${id}번째 게시글의 상세 내용`
+
+    let [post,setPost]=useState({
+        title:"",
+        content:""
+    })
+
+    const getPost = ()=>{
+        axios.get(`${process.env.REACT_APP_API_URL}/posts/${id}`)
+            .then(res=>{
+                console.log(res.data);
+                setPost(res.data);
+            }).catch(err=>{
+                console.error(err);
+        })
     }
+
+    useEffect(() => {
+        getPost();
+    }, []);
+
+
 
     const handleDelete = ()=>{
         alert("게시글이 삭제 되었습니다.")
